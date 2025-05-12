@@ -18,18 +18,41 @@ To start a MariaDB instance for testing, run:
     -e MARIADB_USER=meroxauser \
     -e MARIADB_PASSWORD=meroxapass \
     -e MARIADB_ROOT_PASSWORD=meroxaadmin \
-    -p 3307:3306 \
+    -p 3306:3306 \
     -d mariadb:11.4 \
     --binlog-format=ROW \
     --log-bin=mysql-bin \
     --server-id=1
+
+Logs should be:
+
+e.Header.LogPos 0
+e.Header.LogPos 0
+
+To start a MySQL instance for testing, run:
+  docker run --name mysql_db --rm \
+    -e MYSQL_DATABASE=meroxadb \
+    -e MYSQL_USER=meroxauser \
+    -e MYSQL_PASSWORD=meroxapass \
+    -e MYSQL_ROOT_PASSWORD=meroxaadmin \
+    -p 3306:3306 \
+    -d mysql:8.0 \
+    --server-id=1 \
+    --binlog-format=ROW \
+    --log-bin=mysql-bin
+
+Logs should be:
+
+e.Header.LogPos 1234 (some random num)
+e.Header.LogPos 4321 (another larger random num)
+
 */
 
 func TestBug(t *testing.T) {
 	cfg := canal.NewDefaultConfig()
 	cfg.User = "root"
 	cfg.Password = "meroxaadmin"
-	cfg.Addr = "127.0.0.1:3307"
+	cfg.Addr = "127.0.0.1:3306"
 	cfg.Dump.ExecutionPath = ""
 	cfg.ParseTime = true
 	cfg.Logger = slog.New(slog.NewTextHandler(io.Discard, nil))
